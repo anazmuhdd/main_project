@@ -1,0 +1,10 @@
+import pyttsx3
+engine = pyttsx3.init()
+engine.setProperty('rate',120)
+engine.setProperty('volume',1.0)
+engine.say("Hello, 	welcome your helper is here")
+engine.runAndWait()
+engine.say("Two modes  present,currency detection and object recognition")
+engine.runAndWait()
+engine.say("Tell which mode you require")
+engine.runAndWait()
