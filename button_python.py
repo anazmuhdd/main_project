@@ -26,14 +26,14 @@ def speak(text):
     threading.Thread(target=_speak, daemon=True).start()
 
 # -------------------- YOLO Models --------------------
-currency_model = YOLO("./best.pt")     # Currency detection model
-object_model = YOLO("./obj1.pt")     # Object detection model
+currency_model = YOLO("./best.pt")      # Currency detection model
+object_model = YOLO("./obj1.pt")        # Object detection model
 currency_classes = currency_model.names
 object_classes = object_model.names
 
 # -------------------- Camera Setup --------------------
 picam2 = Picamera2()
-picam2.preview_configuration.main.size = (1280, 720)
+picam2.preview_configuration.main.size = (640, 480)
 picam2.preview_configuration.main.format = "RGB888"
 picam2.preview_configuration.align()
 picam2.configure("preview")
@@ -79,11 +79,10 @@ try:
             if score >= threshold:
                 label = class_list[int(class_id)]
                 cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
-                cv2.putText(frame, f"{label} {score:.2f}", (int(x1), int(y1)-10),
+                cv2.putText(frame, f"{label} {score:.2f}", (int(x1), int(y1) - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-                # Speak detected class
-                speak(f"Detected {label}")
+         
 
                 # Play audio feedback for certain currency notes
                 if label == '20':
@@ -93,9 +92,30 @@ try:
                         while pygame.mixer.music.get_busy():
                             time.sleep(0.1)
 
+                elif label == '50':
+                    if not pygame.mixer.music.get_busy():
+                        pygame.mixer.music.load("50.mp3")
+                        pygame.mixer.music.play()
+                        while pygame.mixer.music.get_busy():
+                            time.sleep(0.1)
+
                 elif label == '100':
                     if not pygame.mixer.music.get_busy():
                         pygame.mixer.music.load("100.mp3")
+                        pygame.mixer.music.play()
+                        while pygame.mixer.music.get_busy():
+                            time.sleep(0.1)
+
+                elif label == '500':
+                    if not pygame.mixer.music.get_busy():
+                        pygame.mixer.music.load("500.mp3")
+                        pygame.mixer.music.play()
+                        while pygame.mixer.music.get_busy():
+                            time.sleep(0.1)
+
+                elif label == '10':
+                    if not pygame.mixer.music.get_busy():
+                        pygame.mixer.music.load("10.mp3")
                         pygame.mixer.music.play()
                         while pygame.mixer.music.get_busy():
                             time.sleep(0.1)
