@@ -118,30 +118,52 @@ async def send_frames():
                 
                 # Feedback Logic
                 if detections:
-                    # Just pick the highest score?
+                    # Sort by score
                     detections.sort(key=lambda x: x["score"], reverse=True)
                     top_result = detections[0]
-                    label = top_result["label"]
-                    score = top_result["score"]
                     
-                    print(f"Detected: {label} ({score:.2f})")
+                    # Log top result
+                    print(f"Detected: {top_result['label']} ({top_result['score']:.2f})")
                     
+                    # Update Audio Feedback (Rate Limiting handling is implicit via get_busy() in play_audio_file and speaking logic)
                     if server_mode == "currency":
-                        # Specific Audio Files for Currency
-                        if label in ['10', '20', '50', '100', '500']:
-                             play_audio_file(f"{label}.mp3")
-                        else:
-                             speak(label)
+                         if top_result['label'] in ['10', '20', '50', '100', '500']:
+                             play_audio_file(f"{top_result['label']}.mp3")
+                         else:
+                             speak(top_result['label'])
                     else:
-                        # General Object
-                        speak(label)
+                        speak(top_result['label'])
+
+                # -------------------- VISUALIZATION --------------------
+                # Draw boxes for all detections
+                for det in detections:
+                    x1, y1, x2, y2 = det["box"]
+                    label = det["label"]
+                    score = det["score"]
+                    
+                    # Draw Rectangle
+                    cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+                    
+                    # Draw Text
+                    text = f"{label} {score:.2f}"
+                    cv2.putText(frame, text, (int(x1), int(y1) - 10), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+                # Show Frame locally on the Pi
+                cv2.imshow("Wearable View", frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
                         
             except websockets.exceptions.ConnectionClosed:
                 print("Connection closed")
                 break
-            
+            except Exception as e:
+                print(f"Loop Error: {e}")
+                
             # Optional: Limit FPS if needed
             await asyncio.sleep(0.01)
+
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     try:
